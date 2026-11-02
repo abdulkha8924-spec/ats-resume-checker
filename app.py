@@ -1,0 +1,208 @@
+Here are all three files formatted cleanly in code blocks so you can easily copy and paste them directly into your project repository.
+
+---
+
+### File 1: `requirements.txt`
+
+```text
+streamlit>=1.37.0
+openai>=1.0.0
+PyPDF2>=3.0.0
+
+```
+
+---
+
+### File 2: `README.md`
+
+```markdown
+# CareerCraft AI 💼🚀
+
+An AI-powered career copilot built with **Streamlit** and **OpenAI**. It helps job seekers optimize their resumes, generate tailored cover letters, and practice live mock interviews.
+
+## Features
+- **📊 ATS Match & Critique:** Compares your resume against a target job description, gives an ATS score, and highlights missing keywords.
+- **✨ Resume Bullet Generator:** Rewrites your experience section to naturally incorporate high-impact keywords.
+- **✉️ Cover Letter Writer:** Instantly drafts a hyper-customized professional cover letter.
+- **🤖 Mock Interviewer Chatbot:** Simulates a hiring manager asking targeted interview questions with real-time feedback.
+
+## Deployment on Streamlit Cloud
+1. Push these three files (`app.py`, `requirements.txt`, `README.md`) to a GitHub repository.
+2. Go to [share.streamlit.io](https://share.streamlit.io/) and deploy the repository.
+3. In your Streamlit app settings under **Secrets**, add your OpenAI API key:
+   ```toml
+   OPENAI_API_KEY = "sk-your-actual-openai-api-key-here"
+
+```
+
+```
+
+---
+
+### File 3: `app.py`
+```python
+import os
+import streamlit as st
+from openai import OpenAI
+import PyPDF2
+
+# Page Config
+st.set_page_config(page_title="CareerCraft AI", page_icon="💼", layout="wide")
+
+# Initialize OpenAI Client
+if "OPENAI_API_KEY" in st.secrets:
+    api_key = st.secrets["OPENAI_API_KEY"]
+else:
+    api_key = os.getenv("OPENAI_API_KEY", "")
+
+if not api_key:
+    st.error("🚨 OpenAI API Key not found! Please configure it in Streamlit Secrets.")
+    st.stop()
+
+client = OpenAI(api_key=api_key)
+
+# Helper function to read uploaded PDF
+def extract_text_from_pdf(uploaded_file):
+    reader = PyPDF2.PdfReader(uploaded_file)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() or ""
+    return text
+
+# UI Header
+st.title("💼 CareerCraft AI Copilot")
+st.markdown("Supercharge your job hunt with advanced AI powered by **OpenAI**.")
+
+# Sidebar for Inputs
+with st.sidebar:
+    st.header("1. Input Details")
+    uploaded_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
+    job_description = st.text_area("Paste Job Description Here", height=200)
+    
+    model_choice = st.selectbox(
+        "Choose OpenAI Model",
+        ["gpt-4o", "gpt-4o-mini"]
+    )
+
+# Extract resume text if available
+resume_text = extract_text_from_pdf(uploaded_file) if uploaded_file else ""
+
+# Main Dashboard Tabs
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📊 ATS Match", 
+    "✨ Bullet Generator", 
+    "✉️ Cover Letter", 
+    "🤖 Mock Interview"
+])
+
+# --- TAB 1: ATS Match & Critique ---
+with tab1:
+    st.subheader("Resume vs. Job Description Match")
+    if st.button("Analyze ATS Score"):
+        if not resume_text or not job_description:
+            st.warning("Please upload a resume and enter a job description in the sidebar.")
+        else:
+            with st.spinner("Analyzing resume compatibility..."):
+                prompt = f"""
+                You are an expert technical recruiter. Analyze the candidate resume against the job description.
+                
+                RESUME:
+                {resume_text}
+                
+                JOB DESCRIPTION:
+                {job_description}
+                
+                Provide:
+                1. ATS Match Score (Out of 100).
+                2. Missing critical keywords.
+                3. 3 specific recommendations to improve resume bullet points.
+                """
+                response = client.chat.completions.create(
+                    model=model_choice,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3
+                )
+                st.markdown(response.choices[0].message.content)
+
+# --- TAB 2: Tailored Resume Bullet Generator ---
+with tab2:
+    st.subheader("Targeted Resume Bullet Rewriter")
+    if st.button("Rewrite Experience Bullets"):
+        if not resume_text or not job_description:
+            st.warning("Please provide both resume and job description.")
+        else:
+            with st.spinner("Optimizing bullet points..."):
+                prompt = f"""
+                Take the experience section from this resume and rewrite the bullet points so they align strongly with the target job description, using action verbs and quantifiable metrics where possible.
+                
+                RESUME:
+                {resume_text}
+                
+                JOB DESCRIPTION:
+                {job_description}
+                """
+                response = client.chat.completions.create(
+                    model=model_choice,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.5
+                )
+                st.markdown(response.choices[0].message.content)
+
+# --- TAB 3: Targeted Cover Letter Writer ---
+with tab3:
+    st.subheader("Custom Cover Letter Generator")
+    tone = st.selectbox("Select Tone", ["Professional", "Enthusiastic", "Concise"])
+    if st.button("Generate Cover Letter"):
+        if not resume_text or not job_description:
+            st.warning("Please provide both resume and job description.")
+        else:
+            with st.spinner("Drafting cover letter..."):
+                prompt = f"""
+                Write a tailored cover letter based on this resume and job description. Tone: {tone}.
+                
+                RESUME:
+                {resume_text}
+                
+                JOB DESCRIPTION:
+                {job_description}
+                """
+                response = client.chat.completions.create(
+                    model=model_choice,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7
+                )
+                st.markdown(response.choices[0].message.content)
+
+# --- TAB 4: Mock Interviewer Chatbot ---
+with tab4:
+    st.subheader("Mock Interview Prep")
+    st.markdown("Practice answering interview questions tailored to the job description.")
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat history
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if user_input := st.chat_input("Answer the interviewer or ask a question..."):
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                system_prompt = f"You are a tough technical hiring manager interviewing a candidate for this job: {job_description}. Evaluate their answers and ask follow-ups."
+                messages = [{"role": "system", "content": system_prompt}] + st.session_state.messages
+                
+                response = client.chat.completions.create(
+                    model=model_choice,
+                    messages=messages,
+                    temperature=0.5
+                )
+                ai_response = response.choices[0].message.content
+                st.markdown(ai_response)
+                st.session_state.messages.append({"role": "assistant", "content": ai_response})
+
+```
