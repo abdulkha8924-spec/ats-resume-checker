@@ -1,46 +1,3 @@
-Here are all three files formatted cleanly in code blocks so you can easily copy and paste them directly into your project repository.
-
----
-
-### File 1: `requirements.txt`
-
-```text
-streamlit>=1.37.0
-openai>=1.0.0
-PyPDF2>=3.0.0
-
-```
-
----
-
-### File 2: `README.md`
-
-```markdown
-# CareerCraft AI 💼🚀
-
-An AI-powered career copilot built with **Streamlit** and **OpenAI**. It helps job seekers optimize their resumes, generate tailored cover letters, and practice live mock interviews.
-
-## Features
-- **📊 ATS Match & Critique:** Compares your resume against a target job description, gives an ATS score, and highlights missing keywords.
-- **✨ Resume Bullet Generator:** Rewrites your experience section to naturally incorporate high-impact keywords.
-- **✉️ Cover Letter Writer:** Instantly drafts a hyper-customized professional cover letter.
-- **🤖 Mock Interviewer Chatbot:** Simulates a hiring manager asking targeted interview questions with real-time feedback.
-
-## Deployment on Streamlit Cloud
-1. Push these three files (`app.py`, `requirements.txt`, `README.md`) to a GitHub repository.
-2. Go to [share.streamlit.io](https://share.streamlit.io/) and deploy the repository.
-3. In your Streamlit app settings under **Secrets**, add your OpenAI API key:
-   ```toml
-   OPENAI_API_KEY = "sk-your-actual-openai-api-key-here"
-
-```
-
-```
-
----
-
-### File 3: `app.py`
-```python
 import os
 import streamlit as st
 from openai import OpenAI
@@ -204,5 +161,3 @@ with tab4:
                 ai_response = response.choices[0].message.content
                 st.markdown(ai_response)
                 st.session_state.messages.append({"role": "assistant", "content": ai_response})
-
-```
