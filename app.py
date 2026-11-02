@@ -38,7 +38,7 @@ with st.sidebar:
     
     model_choice = st.selectbox(
         "Choose OpenAI Model",
-        ["gpt-4o", "gpt-4o-mini"]
+        ["gpt-4o-mini", "gpt-4o"]
     )
 
 # Extract resume text if available
@@ -74,12 +74,15 @@ with tab1:
                 2. Missing critical keywords.
                 3. 3 specific recommendations to improve resume bullet points.
                 """
-                response = client.chat.completions.create(
-                    model=model_choice,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.3
-                )
-                st.markdown(response.choices[0].message.content)
+                try:
+                    response = client.chat.completions.create(
+                        model=model_choice,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.3
+                    )
+                    st.markdown(response.choices[0].message.content)
+                except Exception as e:
+                    st.error(f"OpenAI API Error: {e}")
 
 # --- TAB 2: Tailored Resume Bullet Generator ---
 with tab2:
@@ -98,12 +101,15 @@ with tab2:
                 JOB DESCRIPTION:
                 {job_description}
                 """
-                response = client.chat.completions.create(
-                    model=model_choice,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.5
-                )
-                st.markdown(response.choices[0].message.content)
+                try:
+                    response = client.chat.completions.create(
+                        model=model_choice,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.5
+                    )
+                    st.markdown(response.choices[0].message.content)
+                except Exception as e:
+                    st.error(f"OpenAI API Error: {e}")
 
 # --- TAB 3: Targeted Cover Letter Writer ---
 with tab3:
@@ -123,12 +129,15 @@ with tab3:
                 JOB DESCRIPTION:
                 {job_description}
                 """
-                response = client.chat.completions.create(
-                    model=model_choice,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.7
-                )
-                st.markdown(response.choices[0].message.content)
+                try:
+                    response = client.chat.completions.create(
+                        model=model_choice,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.7
+                    )
+                    st.markdown(response.choices[0].message.content)
+                except Exception as e:
+                    st.error(f"OpenAI API Error: {e}")
 
 # --- TAB 4: Mock Interviewer Chatbot ---
 with tab4:
@@ -153,11 +162,14 @@ with tab4:
                 system_prompt = f"You are a tough technical hiring manager interviewing a candidate for this job: {job_description}. Evaluate their answers and ask follow-ups."
                 messages = [{"role": "system", "content": system_prompt}] + st.session_state.messages
                 
-                response = client.chat.completions.create(
-                    model=model_choice,
-                    messages=messages,
-                    temperature=0.5
-                )
-                ai_response = response.choices[0].message.content
-                st.markdown(ai_response)
-                st.session_state.messages.append({"role": "assistant", "content": ai_response})
+                try:
+                    response = client.chat.completions.create(
+                        model=model_choice,
+                        messages=messages,
+                        temperature=0.5
+                    )
+                    ai_response = response.choices[0].message.content
+                    st.markdown(ai_response)
+                    st.session_state.messages.append({"role": "assistant", "content": ai_response})
+                except Exception as e:
+                    st.error(f"OpenAI API Error: {e}")
