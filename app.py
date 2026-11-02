@@ -1,22 +1,22 @@
 import os
 import streamlit as st
-from openai import OpenAI
+from groq import Groq
 import PyPDF2
 
 # Page Config
 st.set_page_config(page_title="CareerCraft AI", page_icon="💼", layout="wide")
 
-# Initialize OpenAI Client
-if "OPENAI_API_KEY" in st.secrets:
-    api_key = st.secrets["OPENAI_API_KEY"]
+# Initialize Groq Client
+if "GROQ_API_KEY" in st.secrets:
+    api_key = st.secrets["GROQ_API_KEY"]
 else:
-    api_key = os.getenv("OPENAI_API_KEY", "")
+    api_key = os.getenv("GROQ_API_KEY", "")
 
 if not api_key:
-    st.error("🚨 OpenAI API Key not found! Please configure it in Streamlit Secrets.")
+    st.error("🚨 Groq API Key not found! Please configure it in Streamlit Secrets.")
     st.stop()
 
-client = OpenAI(api_key=api_key)
+client = Groq(api_key=api_key)
 
 # Helper function to read uploaded PDF
 def extract_text_from_pdf(uploaded_file):
@@ -28,7 +28,7 @@ def extract_text_from_pdf(uploaded_file):
 
 # UI Header
 st.title("💼 CareerCraft AI Copilot")
-st.markdown("Supercharge your job hunt with advanced AI powered by **OpenAI**.")
+st.markdown("Supercharge your job hunt with lightning-fast AI powered by **Groq** and **Llama 3**.")
 
 # Sidebar for Inputs
 with st.sidebar:
@@ -37,8 +37,8 @@ with st.sidebar:
     job_description = st.text_area("Paste Job Description Here", height=200)
     
     model_choice = st.selectbox(
-        "Choose OpenAI Model",
-        ["gpt-4o-mini", "gpt-4o"]
+        "Choose Groq Model",
+        ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
     )
 
 # Extract resume text if available
@@ -82,7 +82,7 @@ with tab1:
                     )
                     st.markdown(response.choices[0].message.content)
                 except Exception as e:
-                    st.error(f"OpenAI API Error: {e}")
+                    st.error(f"Groq API Error: {e}")
 
 # --- TAB 2: Tailored Resume Bullet Generator ---
 with tab2:
@@ -109,7 +109,7 @@ with tab2:
                     )
                     st.markdown(response.choices[0].message.content)
                 except Exception as e:
-                    st.error(f"OpenAI API Error: {e}")
+                    st.error(f"Groq API Error: {e}")
 
 # --- TAB 3: Targeted Cover Letter Writer ---
 with tab3:
@@ -137,7 +137,7 @@ with tab3:
                     )
                     st.markdown(response.choices[0].message.content)
                 except Exception as e:
-                    st.error(f"OpenAI API Error: {e}")
+                    st.error(f"Groq API Error: {e}")
 
 # --- TAB 4: Mock Interviewer Chatbot ---
 with tab4:
@@ -172,4 +172,4 @@ with tab4:
                     st.markdown(ai_response)
                     st.session_state.messages.append({"role": "assistant", "content": ai_response})
                 except Exception as e:
-                    st.error(f"OpenAI API Error: {e}")
+                    st.error(f"Groq API Error: {e}")
